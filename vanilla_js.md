@@ -837,14 +837,101 @@ We can classify most asynchronous JavaScript operations with two primary trigger
 
 #### How to Handle Browser APIs/Web APIs
 
+Browser APIs like setTimeout and event handlers rely on callback functions. A callback function executes when an asynchronous operation completes. Here is an example of how a setTimeout function works:
 
+```js
+function printMe() {
+  console.log('print me');
+}
 
+setTimeout(printMe, 2000);
+```
 
+So, what do we expect to happen here? What do you think the output will be?
 
+Will the JavaScript engine wait for 2 seconds to go to the invocation of the test() function and output this:
 
+```js
+printMe
+test
+```
+Or will it manage to keep the callback function of setTimeout aside and continue its other executions? So the output could be this, perhaps:
 
+```js
+test
+printMe
+```
 
+#### How the JavaScript Callback Queue Works (aka Task Queue)
 
+JavaScript maintains a queue of callback functions. It is called a callback queue or task queue. A queue data structure is First-In-First-Out(FIFO). So, the callback function that first gets into the queue has the opportunity to go out first. But the question is:
+
+- When does the JavaScript engine put it in the queue?
+- When does the JavaScript engine take it out of the queue?
+- Where does it go when it comes out of the queue?
+- Most importantly, how do all these things relate to the asynchronous part of JavaScript?
+
+Whoa, lots of questions! Let's figure out the answers with the help of the following image:
+
+![image](./images/Screenshot%20from%202023-12-04%2015-02-14.png)
+
+The above image shows the regular call stack we have seen already. There are two additional sections to track if a browser API (like setTimeout) kicks in and queues the callback function from that API.
+
+The JavaScript engine keeps executing the functions in the call stack. As it doesn't put the callback function straight into the stack, there is no question of any code waiting for/blocking execution in the stack.
+
+The engine creates a loop to look into the queue periodically to find what it needs to pull from there. It pulls a callback function from the queue to the call stack when the stack is empty. Now the callback function executes generally as any other function in the stack. The loop continues. This loop is famously known as the Event Loop.
+
+So, the moral of the story is:
+
+- When a Browser API occurs, park the callback functions in a queue.
+- Keep executing code as usual in the stack.
+- The event loop checks if there is a callback function in the queue.
+- If so, pull the callback function from the queue to the stack and execute.
+- Continue the loop.
+
+Alright, let's see how it works with the code below:
+
+```js
+function f1() {
+    console.log('f1');
+}
+
+function f2() {
+    console.log('f2');
+}
+
+function main() {
+    console.log('main');
+    
+    setTimeout(f1, 0);
+    
+    f2();
+}
+
+main();
+```
+
+The code executes a setTimeout function with a callback function f1(). Note that we have given zero delays to it. This means that we expect the function f1() to execute immediately. Right after setTimeout, we execute another function, f2().
+
+So, what do you think the output will be? Here it is:
+
+```js
+main
+f2
+f1
+```
+
+Here are steps written out:
+
+1. The main() function gets inside the call stack.
+2. It has a console log to print the word main. The console.log('main') executes and goes out of the stack.
+3. The setTimeout browser API takes place.
+4. The callback function puts it into the callback queue.
+5. In the stack, execution occurs as usual, so f2() gets into the stack. The console log of f2() executes. Both go out of the stack.
+6. The main() also pops out of the stack.
+7. The event loop recognizes that the call stack is empty, and there is a callback function in the queue.
+8. The callback function f1() then goes into the stack. Execution starts. The console log executes, and f1() also comes out of the stack.
+9. At this point, nothing else is in the stack and queue to execute further.
 
 
 

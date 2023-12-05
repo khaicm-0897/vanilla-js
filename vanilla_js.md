@@ -933,5 +933,114 @@ Here are steps written out:
 8. The callback function f1() then goes into the stack. Execution starts. The console log executes, and f1() also comes out of the stack.
 9. At this point, nothing else is in the stack and queue to execute further.
 
+#### How the JavaScript Engine Handles Promises
 
+In JavaScript, promises are special objects that help you perform asynchronous operations.
+
+You can create a promise using the Promise constructor. You need to pass an executor function to it. In the executor function, you define what you want to do when a promise returns successfully or when it throws an error. You can do that by calling the resolve and reject methods, respectively.
+
+Here is an example of a promise in JavaScript:
+
+```js
+const promise = new Promise((resolve, reject) =>
+        resolve('I am a resolved promise');
+);
+```
+
+After the promise is executed, we can handle the result using the .then() method and any errors with the .catch() method.
+
+```js
+promise.then(result => console.log(result))
+```
+
+You use promises every time you use the fetch() method to get some data from a store.
+
+The point here is that JavaScript engine doesn't use the same callback queue we have seen earlier for browser APIs. It uses another special queue called the Job Queue.
+
+#### What is the Job Queue in JavaScript?
+
+Every time a promise occurs in the code, the executor function gets into the job queue. The event loop works, as usual, to look into the queues but gives priority to the job queue items over the callback queue items when the stack is free.
+
+The item in the callback queue is called a macro task, whereas the item in the job queue is called a micro task.
+
+So the entire flow goes like this:
+
+- For each loop of the event loop, one task is completed out of the callback queue.
+- Once that task is complete, the event loop visits the job queue. It completes all the micro tasks in the job queue before it looks into the next thing.
+- If both the queues got entries at the same point in time, the job queue gets preference over the callback queue.
+
+```js
+function f1() {
+    console.log('f1');
+}
+
+function f2() {
+    console.log('f2');
+}
+
+function main() {
+    console.log('main');
+    
+    setTimeout(f1, 0);
+    
+    new Promise((resolve, reject) =>
+        resolve('I am a promise')
+    ).then(resolve => console.log(resolve))
+    
+    f2();
+}
+
+main();
+
+-----------
+
+// main
+// f2
+// I am a promise
+// f1
+```
+
+
+![image](./images/Peek%202023-12-05%2022-55.gif)
+
+The flow is almost the same as above, but it is crucial to notice how the items from the job queue prioritize the items from the task queue. Also note that it doesn't even matter if the setTimeout has zero delay. It is always about the job queue that comes before the callback queue.
+
+```js
+function f1() {
+ console.log('f1');
+}
+
+function f2() { 
+    console.log('f2');
+}
+
+function f3() { 
+    console.log('f3');
+}
+
+function main() {
+  console.log('main');
+
+  setTimeout(f1, 50);
+  setTimeout(f3, 30);
+
+  new Promise((resolve, reject) =>
+    resolve('I am a Promise, right after f1 and f3! Really?')
+  ).then(resolve => console.log(resolve));
+    
+  new Promise((resolve, reject) =>
+    resolve('I am a Promise after Promise!')
+  ).then(resolve => console.log(resolve));
+
+  f2();
+}
+
+main();
+
+// main
+// f2
+// I am a Promise, right after f1 and f3! Really?
+// I am a Promise after Promise!
+// f3
+// f1
 

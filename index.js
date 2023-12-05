@@ -87,7 +87,7 @@ function printMe() {
         console.log('test');
     }
     
-setTimeout(printMe, 2000);
+setTimeout(printMe, 500);
 test();
 
 function f1() {
@@ -98,12 +98,81 @@ function f2() {
     console.log('f2');
 }
 
-function main() {
-    console.log('main');
-    
-    setTimeout(f1, 0);
-    
-    f2();
+// 1. Create a Promise to fetch the water
+let promiseResolve = new Promise(function (resolve, reject) {
+    // Pretend a delay of 2 sec to fetch it!
+    setTimeout(function () {
+      // Fetched the water. Let's resolve the promise
+    resolve("Hurray! Fetched the Water.");
+    }, 2000);
+});
+
+  // 2. Function to Set up the handler to handle a promise result.
+  // It is to inform the grandparents when the result is available.
+const grandParentsCookingOil = () => {
+    // The handler function to handle the resolved promise
+    promiseResolve.then(function (result) {
+      // Fetched the water. Now grandparents can start the cooking
+    console.log(`cooking rice with the ${result}`);
+    });
+};
+
+  // 3. Calling the function to activate the set up.
+grandParentsCookingOil();
+
+
+// 1. Create the promise
+let promiseReject = new Promise(function (resolve, reject) {
+    setTimeout(function () {
+        // Reject it as the disaster happend.
+        reject(
+        new Error(
+            "Jack fell down and broke his crown. And Jill came tumbling after."
+        )
+        );
+    }, 2000);
+});
+
+  // 2. Inform grandparents
+  // but this time we are using the .catch
+const grandParentsCookingRice = () => {
+    promiseReject.catch(function (error) {
+        console.log(`OMG!!! ${error.message}`);
+    });
+};
+
+  // 3. Call the function
+grandParentsCookingRice();
+
+
+// It resolves with the value red after 1 second 
+const red = new Promise((resolve, reject) => {
+    setTimeout(() => {
+        resolve('red');
+    }, 1000);
+});
+
+// It resolves with the value green after 3 seconds
+const green = new Promise((resolve, reject) => {
+    setTimeout(() => {
+        resolve('green');
+    }, 3000);
+});
+
+// It resolves with the value blue after 5 seconds
+const blue = new Promise((resolve, reject) => {
+    setTimeout(() => {
+        reject('blue');
+    }, 5000);
+});
+
+
+const testAllSettled = async () => {
+    const colors = await Promise.allSettled([red, green, blue]);
+    console.log(colors);
+    colors.forEach(color => {
+        console.log(color);
+    });
 }
 
-main();
+testAllSettled();

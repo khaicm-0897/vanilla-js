@@ -162,3 +162,46 @@ console.log(fish);
 ```
 
 Lưu ý rằng item thứ hai là "empty", không hoàn toàn giống với giá trị thực tế undefined. Khi sử dụng các phương pháp duyệt mảng như Array.prototype.map, các slot trống sẽ bị bỏ qua. Tuy nhiên, truy cập chỉ mục cá[1] vẫn trả về undefined.
+
+### Template literals
+
+```js
+// Basic literal string creation
+`In JavaScript '\n' is a line-feed.` // Multiline strings
+`In JavaScript, template strings can run
+ over multiple lines, but double and single
+ quoted strings cannot.`;
+
+// String interpolation
+const name = "Lev",
+  time = "today";
+`Hello ${name}, how are you ${time}?`;
+```
+
+### Using special characters in strings
+
+| Character | Meaning                                                                                                                                                                       |
+| --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| \0        | Null Byte                                                                                                                                                                     |
+| \b        | Backspace                                                                                                                                                                     |
+| \f        | Form Feed                                                                                                                                                                     |
+| \n        | New Line                                                                                                                                                                      |
+| \r        | Carriage Return                                                                                                                                                               |
+| \t        | Tab                                                                                                                                                                           |
+| \v        | Vertical tab                                                                                                                                                                  |
+| \'        | Apostrophe or single quote                                                                                                                                                    |
+| \"        | Double quote                                                                                                                                                                  |
+| \\        | Backslash character                                                                                                                                                           |
+| \XXX      | The character with the Latin-1 encoding specified by up to three octal digits XXX between 0 and 377. For example, \251 is the octal sequence for the copyright symbol.        |
+| \xXX      | The character with the Latin-1 encoding specified by the two hexadecimal digits XX between 00 and FF. For example, \xA9 is the hexadecimal sequence for the copyright symbol. |
+| \uXXXX    | The Unicode character specified by the four hexadecimal digits XXXX. For example, \u00A9 is the Unicode sequence for the copyright symbol. See Unicode escape sequences.      |
+| \u{XXXXX} | Unicode code point escapes. For example, \u{2F804} is the same as the simple Unicode escapes \uD87E\uDC04.                                                                    |
+
+### Escaping characters
+
+Bạn có thể chèn dấu ngoặc kép bên trong chuỗi bằng cách đặt trước chuỗi đó một dấu gạch chéo ngược. Điều này được gọi là thoát khỏi dấu ngoặc kép. Ví dụ:
+
+```js
+const quote = 'He read "The Cremation of Sam McGee" by R.W. Service.';
+console.log(quote);
+```

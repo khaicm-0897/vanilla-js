@@ -23,3 +23,13 @@ for (let i = 0, j = 9; i <= j; i++, j--) {
   console.log(a[0]);
   // console.log(`a[${i}][${j}]= ${a[i][j]}`);
 }
+
+function validate(obj, lowval, hival) {
+  console.log(obj.value);
+  if (obj.value < lowval || obj.value > hival) {
+    console.log("Invalid Value!");
+  }
+  console.log("222222222222");
+}
+
+validate(this, 18, 99);
